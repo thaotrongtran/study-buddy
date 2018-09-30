@@ -16,20 +16,17 @@ def index():
     page_content = page_content.find("p").getText()
     print(page_content)
     parsed_json = json.loads(page_content)
-    print(parsed_json)
-    return render_template('home.html',todos = parsed_json )
+    ################################################
+    pagedata2 = requests.get('https://b4p0bt9fnj.execute-api.us-east-1.amazonaws.com/Beta')
+    page_content2 = BeautifulSoup(pagedata2.content, "lxml")
+    page_content2 = page_content2.find("p").getText()
+
+    parsed_json2 = json.loads(page_content2)
+    if(parsed_json2 == None):
+        parsed_json2 = {"taskDescription":"No current task","dueDate":" "}
 
 
-# @app.route('/task')
-# def task():
-#         pagedata = requests.get('https://b4p0bt9fnj.execute-api.us-east-1.amazonaws.com/Beta')
-#         page_content = BeautifulSoup(pagedata.content, "lxml")
-#         page_content = page_content.find("p").getText()
-#         print(page_content)
-#         parsed_json = json.loads(page_content)
-#
-#         return render_template('home.html',data2 = parsed_json)
-
+    return render_template('home.html',todos = parsed_json,important = parsed_json2 )
 
 if __name__ == '__main__':
     app.run(debug = True)
