@@ -58,34 +58,34 @@ const AddHomeworkIntentHandler = {
     }
 };
 
-// function dynamoScan() {
-//     return new Promise(function(resolve, reject) {
-//         var lastOne
-//         var docClient = new AWS.DynamoDB.DocumentClient();
-//         var tasks = [];
-//         var params = {TableName: 'tasksList', ProjectionExpression: 'dueDate, taskDescription'};
-//             var onScan = (err, data) => {
-//             if (err) {
-//                 console.error("Unable to scan the table. Error JSON:", JSON.stringify(err, null, 2));
-//             } else {
-//                 console.log("Scan succeeded.");
-//                 data.Items.forEach(function(task) {
-//                     if(task != null){
-//                         tasks.push(task);
-//                     }
-//                 });
-//             }
-//             tasks = tasks.sort(function(a,b){
-//             var c = new Date(a.dueDate);
-//             var d = new Date(b.dueDate);
-//             return c-d;
-//              });
-//             lastOne = tasks.shift();
-//             return resolve(lastOne);
-//     }
-//     docClient.scan(params, onScan)
-//     })
-// }
+function dynamoScan() {
+    return new Promise(function(resolve, reject) {
+        var lastOne
+        var docClient = new AWS.DynamoDB.DocumentClient();
+        var tasks = [];
+        var params = {TableName: 'tasksList', ProjectionExpression: 'dueDate, taskDescription'};
+            var onScan = (err, data) => {
+            if (err) {
+                console.error("Unable to scan the table. Error JSON:", JSON.stringify(err, null, 2));
+            } else {
+                console.log("Scan succeeded.");
+                data.Items.forEach(function(task) {
+                    if(task != null){
+                        tasks.push(task);
+                    }
+                });
+            }
+            tasks = tasks.sort(function(a,b){
+            var c = new Date(a.dueDate);
+            var d = new Date(b.dueDate);
+            return c-d;
+             });
+            lastOne = tasks.shift();
+            return resolve(lastOne);
+    }
+    docClient.scan(params, onScan)
+    })
+}
 
 const GetHomeworkIntentHandler = {
     canHandle(handlerInput) {
@@ -94,15 +94,18 @@ const GetHomeworkIntentHandler = {
     },
     handle(handlerInput) {
 
-    var docClient = new AWS.DynamoDB.DocumentClient();
-    var params = {
-        TableName: 'currentTask',
+    var x = dynamoScan()
+    x.then(function(results) {
+
+        var docClient = new AWS.DynamoDB.DocumentClient();
+        var params = {
+        TableName: 'workingIt',
         Item: {
-            'taskID': 01,
-            'taskDescription': "Computer Science PA1",
-            'dueDate': "01/10/2018"
+            'taskID': 1,
+            'taskDescription': results.taskDescription,
+            'dueDate': results.dueDate
             }
-    };
+        };
     docClient.put(params, function(err, data) {
             if (err) {
                 console.log("Error", err);
@@ -110,27 +113,47 @@ const GetHomeworkIntentHandler = {
                 console.log("Success", data);
             }
     });
-
-    // var temp;
-    //var x = dynamoScan()
-
-    // x.then(function(results) {
-    // //  return handlerInput.responseBuilder
-    // //     .speak("You should do Computer Science PA1 which is due on 01/10/2018")
-    // //     //.speak("Good data")
-    // //     .getResponse();
-    // }
-    // ).catch(function(err) {
-    //     console.log(err)
-    // })
-
-
+    }
+    ).catch(function(err) {
+        console.log(err)
+    })
     return handlerInput.responseBuilder
-      .speak("You should do Computer Science PA1 which is due on 01/10/2018")
+      .speak("You should do the task listed on the screen")
         //.speak("Good data")
         .getResponse();
     }
 };
+
+
+const completeCurrentIntentHandler = {
+    canHandle(handlerInput) {
+        return handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
+            handlerInput.requestEnvelope.request.intent.name === 'completeCurrent';
+    },
+    handle(handlerInput) {
+
+    var docClient = new AWS.DynamoDB.DocumentClient();
+    var params = {
+    TableName: 'workingIt',
+    Key:{
+        "taskID": 1
+    },
+
+};
+    docClient.delete(params, function(err, data) {
+            if (err) {
+                console.log("Error", err);
+            } else {
+                console.log("Success", data);
+            }
+    });
+
+    return handlerInput.responseBuilder
+      .speak("Great job for completing the task!")
+      .getResponse();
+    }
+};
+
 
 const HelpIntentHandler = {
     canHandle(handlerInput) {
@@ -138,12 +161,12 @@ const HelpIntentHandler = {
             handlerInput.requestEnvelope.request.intent.name === 'AMAZON.HelpIntent';
     },
     handle(handlerInput) {
-        const speechText = 'You can say hello to me!';
+        const speechText = 'You can add new homework or get homework';
 
         return handlerInput.responseBuilder
             .speak(speechText)
             .reprompt(speechText)
-            .withSimpleCard('Hello World', speechText)
+            .withSimpleCard('Get homework?', speechText)
             .getResponse();
     },
 };
@@ -159,7 +182,7 @@ const CancelAndStopIntentHandler = {
 
         return handlerInput.responseBuilder
             .speak(speechText)
-            .withSimpleCard('Hello World', speechText)
+            .withSimpleCard('Goodbye!', speechText)
             .getResponse();
     },
 };
@@ -198,6 +221,7 @@ exports.handler = skillBuilder
         HelpIntentHandler,
         CancelAndStopIntentHandler,
         GetHomeworkIntentHandler,
+        completeCurrentIntentHandler,
         SessionEndedRequestHandler
     )
     .addErrorHandlers(ErrorHandler)
