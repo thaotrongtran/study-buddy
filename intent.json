@@ -28,10 +28,42 @@
                             "samples": [
                                 "The homework is"
                             ]
+                        },
+                        {
+                            "name": "date",
+                            "type": "AMAZON.DATE",
+                            "samples": [
+                                "Due date is"
+                            ]
                         }
                     ],
                     "samples": [
-                        "add homework {task}"
+                        "add homework {task}",
+                        "add {task}",
+                        "please add {task}",
+                        "I would like to add {task}",
+                        "would you add {task}",
+                        "can you add {task}",
+                        "I have homework for {task}",
+                        "set homework for {task}",
+                        "could you add {task}",
+                        "may I add {task}",
+                        "might I add {task}"
+                    ]
+                },
+                {
+                    "name": "GetHomework",
+                    "slots": [],
+                    "samples": [
+                        "get some work done",
+                        "let's get some work done",
+                        "give me something to do",
+                        "give me some assignment",
+                        "what should I do",
+                        "give me some task",
+                        "give me a task",
+                        "let's do some work",
+                        "let's get some tasks done"
                     ]
                 }
             ],
@@ -52,6 +84,15 @@
                             "prompts": {
                                 "elicitation": "Elicit.Slot.1078469289565.309930979273"
                             }
+                        },
+                        {
+                            "name": "date",
+                            "type": "AMAZON.DATE",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.315160562311.1349199326985"
+                            }
                         }
                     ]
                 }
@@ -64,6 +105,15 @@
                     {
                         "type": "PlainText",
                         "value": "What is the homework again?"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.315160562311.1349199326985",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "What is the due date?"
                     }
                 ]
             }
