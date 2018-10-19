@@ -65,6 +65,16 @@
                         "let's do some work",
                         "let's get some tasks done"
                     ]
+                },
+                {
+                    "name": "completeCurrent",
+                    "slots": [],
+                    "samples": [
+                        "I completed the current task",
+                        "Completed the current task",
+                        "I have completed the current task",
+                        "Current task is done"
+                    ]
                 }
             ],
             "types": []
